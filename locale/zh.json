@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Unity 桥接",
+    "description": "通过项目内安装的 mcp-unity 桥接控制 Unity 编辑器（Unity 2022.3 及以上，含 Unity 6 及后续版本）。"
+  }
+}

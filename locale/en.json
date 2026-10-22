@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Unity bridge",
+    "description": "Drive the Unity Editor (Unity 2022.3 and newer, Unity 6 and later included) through the mcp-unity bridge installed in your project."
+  }
+}

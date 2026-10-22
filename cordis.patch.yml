@@ -1,0 +1,51 @@
+# DSH ⇄ Unity bridge
+#
+# Inserts one MCP server into the profile. The entry below is an ordinary
+# @deepseek-ai/dsh-mcp-client instance; `serverName: unity` makes every Unity
+# tool appear to the model as `mcp__unity__<tool>`.
+#
+# The command is the Host's own Node executable (`process.execPath`), and the
+# argument is relative on purpose: dsh-mcp-client spawns the child with the
+# profile directory as cwd, so this resolves to the installed copy of this
+# bundle. `server/entry.mjs` then finds the Unity project, the mcp-unity server
+# shipped by that project's package, and the per-project bridge token.
+
+- insert:
+    - id: unity-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: unity
+        transport: stdio
+        command: !!js process.execPath
+        args:
+          - node_modules/dsh-unity-bridge/server/entry.mjs
+        env:
+          # '' = detect automatically. Set a Unity project root to pin the plugin
+          # to one project (useful when several projects use the default port).
+          MCP_UNITY_PROJECT: ''
+          # '' = probe the running editor while choosing between projects; '0'
+          # skips the probe entirely.
+          MCP_UNITY_PROBE: ''
+          # Keeps the child in plain-Node mode if the Host ever runs under Electron.
+          ELECTRON_RUN_AS_NODE: '1'
+          # How long the mcp-unity server waits for the editor. Without this it
+          # falls back to the project's RequestTimeoutSeconds (10 s minimum),
+          # which cut long operations off long before toolCallTimeoutMs below.
+          # Keep it under toolCallTimeoutMs. `run_tests` is additionally bounded
+          # inside Unity by the same Request Timeout setting (Tools > MCP Unity >
+          # Server Window), so raise that too for suites that run over a minute.
+          UNITY_REQUEST_TIMEOUT: '170'
+        # Surface a broken Unity setup as a startup error instead of a silent
+        # server with zero tools.
+        failOnStartupError: true
+        # Unity operations (compile, play mode, tests) can be slow.
+        toolCallTimeoutMs: 180000
+        # The server process is cheap to respawn; retry while Unity is closed.
+        # The budget is deliberately large (about eight hours at the 30 s cap):
+        # when mcp-client exhausts it, the server's tools are unregistered and
+        # stay gone until the plugin is reloaded or the Host is restarted.
+        reconnect:
+          enabled: true
+          initialDelayMs: 1000
+          maxDelayMs: 30000
+          maxAttempts: 1000

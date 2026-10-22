@@ -1,0 +1,57 @@
+{
+  "name": "dsh-unity-bridge",
+  "version": "0.2.0",
+  "description": "Drive the Unity Editor (Unity 2022.3 and newer, Unity 6 and later included) from DSH via the mcp-unity bridge.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixelsoyo/dsh-unity-bridge.git"
+  },
+  "homepage": "https://github.com/pixelsoyo/dsh-unity-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/pixelsoyo/dsh-unity-bridge/issues"
+  },
+  "author": "pixelsoyo",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node test/run.mjs",
+    "prepack": "node test/run.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "unity",
+    "unity-editor",
+    "mcp",
+    "mcp-unity",
+    "game-development"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "icon": "./icon.svg",
+  "exports": {
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./server/*.mjs": "./server/*.mjs"
+  },
+  "files": [
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "server/*.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
