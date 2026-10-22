@@ -1,28 +1,11 @@
 # dsh-unity-bridge — DSH ⇄ Unity 桥接插件
 
 一个**纯配置**的 DSH bundle 插件：给当前 profile 插入一个 `@deepseek-ai/dsh-mcp-client` 实例，
-把 Unity 编辑器接进 DSH。装上之后模型可以调用 34 个 `mcp__unity__*` 工具
+把 Unity 编辑器接进 DSH。装上之后让DSH里的模型可以调用 34 个 `mcp__unity__*` 工具
 （读写场景层级、增删改 GameObject / 组件、材质、预制体、场景、Play Mode、跑测试、
 看 Console、执行菜单项等），所有操作都发生在**你正在运行的 Unity 编辑器**里。
 
-> **English summary** — A configuration-only DSH bundle that plugs the Unity Editor
-> into DeepSeek Harness through the [`mcp-unity`](https://github.com/CoderGamester/mcp-unity)
-> bridge already installed in your project. It adds one `@deepseek-ai/dsh-mcp-client`
-> entry (stdio) and exposes 34 `mcp__unity__*` tools. Nothing is bundled: the launcher
-> locates your Unity project, loads the MCP server that ships inside that project's own
-> `com.gamelovers.mcp-unity` copy (so the protocol always matches your editor — Unity
-> 2022.3 and newer, Unity 6 included), and reuses the per-project bridge token without
-> copying it. Install: DSH → Settings → Plugins → install from the npm package
-> `dsh-unity-bridge` (or a local checkout). Requires DSH 0.2.x and mcp-unity ≥ 1.5.0.
-> MIT licensed. The model can modify and save your scenes — read the security notes below.
-
-[功能特性](#功能特性) · [工作原理](#工作原理) · [三步上手](#三步上手) · [安装](#安装) · [常见问题](#常见问题) · [排错](#排错) · [发布（维护者）](#发布维护者)
-
-- 当前版本：`0.2.0`（npm 包名 `dsh-unity-bridge`，MIT）
-- 目标宿主：DSH 0.2.x（含 rc；`@deepseek-ai/dsh-mcp-client` 随宿主内置，插件不带任何 dsh 包）
-- 目标 Unity：**Unity 2022.3 及以上，含 Unity 6 及后续版本**（不设上限；唯一前提是项目里装的是 `com.gamelovers.mcp-unity` 1.5.0+）
-- 不含任何捆绑的 MCP server 副本，也不依赖任何 peer 版本范围
-- 仓库：[github.com/pixelsoyo/dsh-unity-bridge](https://github.com/pixelsoyo/dsh-unity-bridge)（问题与 PR 走 Issues）
+[功能特性](#功能特性) · [工作原理](#工作原理)·[安装](#安装)·[验证](#验证)·[常见问题](#常见问题)·[排错](#排错)·[发布（维护者）](#发布维护者)
 
 ## 工作原理
 
@@ -40,16 +23,21 @@ DSH Agent ──MCP(stdio)──> dsh-unity-bridge ──ws://127.0.0.1:8090/Mcp
 - **不复制令牌**：令牌只在文件里，插件把路径和端口通过环境变量交给 server；
 - **不改你的 Unity 项目**：插件侧只读设置与令牌，不往项目目录写任何东西。
 
-## 三步上手
+## 安装
 
-1. **Unity 侧**：项目里装 `com.gamelovers.mcp-unity` 1.5.0+用 Unity 打开一次（生成桥接令牌），
-   并保持编辑器打开（`Tools > MCP Unity > Server Window` 显示运行中）。（https://github.com/CoderGamester/mcp-unity.git）
-2. **DSH 侧**：设置 → 插件 → 从 npm 安装 `dsh-unity-bridge`（CLI 用法见[安装](#安装)），
-   插件列表出现 **Unity 桥接** 即成功。
-3. **验证**：新建会话对 Agent 说「看一下当前场景层级」，它调用
-   `mcp__unity__get_scenes_hierarchy` 并返回真实节点树，就通了。
+1. **Unity 侧**：
+- 项目里装 `com.gamelovers.mcp-unity` 1.5.0+。
+`https://github.com/CoderGamester/mcp-unity.git`
+- 至少用 Unity 打开过该项目一次 —— 首次启动才会生成 `Library/McpUnity/bridge-token`。，
+- 并保持编辑器打开（`Tools > MCP Unity > Server Window` 显示运行中）。
+2. **DSH 侧**：
+- 从本地：把仓库 clone 到任意位置，在插件页选择那个目录
 
 端口、多项目、超时与排错见下文。
+
+## 验证
+**验证**：新建会话对 Agent 说「看一下当前场景层级」，它调用
+  `mcp__unity__get_scenes_hierarchy` 并返回真实节点树，就通了。
 
 ## 功能特性
 
@@ -70,10 +58,9 @@ DSH Agent ──MCP(stdio)──> dsh-unity-bridge ──ws://127.0.0.1:8090/Mcp
 
 | 组件 | 要求 |
 | --- | --- |
-| DeepSeek Harness | 0.2.x（含 rc）。桌面端是当前主要验证环境 |
+| DeepSeek Harness | 无硬性版本要求（当前验证于 0.2.x，含 rc）；桌面端是当前主要验证环境 |
 | Unity | **2022.3 及以上，含 Unity 6**；上限取决于 mcp-unity 包本身 |
 | mcp-unity（Unity 项目里） | `com.gamelovers.mcp-unity` **1.5.0+**（1.5.0 起才有令牌握手） |
-| Node.js | 不用单独装：用 DSH 自带运行时（`process.execPath` + `ELECTRON_RUN_AS_NODE`） |
 | 操作系统 | Windows 已实测；macOS / Linux 有对应日志路径回退，但未实测 |
 
 ## 为什么它不挑 Unity 版本（2022.3 及以上，Unity 6 及以后）
@@ -90,41 +77,6 @@ DSH Agent ──MCP(stdio)──> dsh-unity-bridge ──ws://127.0.0.1:8090/Mcp
 `discovery.mjs` 里对 mcp-unity 的版本做一次 `< 1.5.0` 的检查（低版本没有令牌握手，必然 401），
 这个检查跟 Unity 版本无关。
 
-## 安装
-
-前提两项：
-
-1. Unity 项目里装了 `com.gamelovers.mcp-unity` 1.5.0+（Package Manager → Add package from git URL：
-   `https://github.com/CoderGamester/mcp-unity.git`）；
-2. **至少用 Unity 打开过该项目一次** —— 首次启动才会生成 `Library/McpUnity/bridge-token`。
-
-然后 DSH 设置 → **插件** → 安装/添加插件，两种方式：
-
-- 从 npm：填包名 `dsh-unity-bridge`（或固定版本 `dsh-unity-bridge@0.2.0`）；
-- 从本地：把仓库 clone 到任意位置，在插件页选择那个目录（开发时用，装出来的是链接而不是拷贝）。
-
-用 CLI 启动的 profile（`web`、`headless` 等）也可以命令行装：
-
-```bash
-dsh plugin --profile <profile> add dsh-unity-bridge
-```
-
-`desktop` profile 由桌面端持有，CLI 会拒绝管理它，请用上面的设置页安装。
-
-装完后 HMR 会重新加载该 profile 的插件树，插件列表里出现 **Unity 桥接 / Unity bridge**
-即成功；tool 列表里出现 `mcp__unity__*` 即可使用。
-
-最后确认 Unity 编辑器是**打开状态**（Tools > MCP Unity > Server Window > Start Server
-打开时那个窗口的端口即桥接端口，默认 8090）。
-
-> 包名、显示名、工具前缀是三件不同的事，改哪个见「改名字」一节。
-
-## 更新与卸载
-
-- **更新**：设置 → 插件里重装新版本（CLI profile：`dsh plugin --profile <profile> add dsh-unity-bridge@<新版本>`）。
-  HMR 会重载插件，Unity 连接随之重建；Unity 项目里什么都不用动。
-- **卸载**：设置 → 插件里卸载（CLI：`dsh plugin --profile <profile> remove dsh-unity-bridge`）。
-  只删 DSH 侧的这条配置，Unity 项目里的 `com.gamelovers.mcp-unity` 和桥接令牌都保留。
 
 ## 仓库结构
 
