@@ -42,8 +42,8 @@ DSH Agent ──MCP(stdio)──> dsh-unity-bridge ──ws://127.0.0.1:8090/Mcp
 
 ## 三步上手
 
-1. **Unity 侧**：项目里装 `com.gamelovers.mcp-unity` 1.5.0+（https://github.com/CoderGamester/mcp-unity.git），用 Unity 打开一次（生成桥接令牌），
-   并保持编辑器打开（`Tools > MCP Unity > Server Window` 显示运行中）。
+1. **Unity 侧**：项目里装 `com.gamelovers.mcp-unity` 1.5.0+用 Unity 打开一次（生成桥接令牌），
+   并保持编辑器打开（`Tools > MCP Unity > Server Window` 显示运行中）。（https://github.com/CoderGamester/mcp-unity.git）
 2. **DSH 侧**：设置 → 插件 → 从 npm 安装 `dsh-unity-bridge`（CLI 用法见[安装](#安装)），
    插件列表出现 **Unity 桥接** 即成功。
 3. **验证**：新建会话对 Agent 说「看一下当前场景层级」，它调用
