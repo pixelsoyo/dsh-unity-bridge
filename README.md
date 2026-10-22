@@ -31,13 +31,6 @@ DSH Agent ──MCP(stdio)──> dsh-unity-bridge ──ws://127.0.0.1:8090/Mcp
 - 至少用 Unity 打开过该项目一次 —— 首次启动才会生成 `Library/McpUnity/bridge-token`。，
 - 并保持编辑器打开（`Tools > MCP Unity > Server Window` 显示运行中）。
 2. **DSH 侧**：
-**方式一：图形界面（桌面版推荐）**
-
-设置 → 插件 → 添加插件，粘贴：
-git+https://github.com/pixelsoyo/dsh-unity-bridge.git
-
-**方式二：命令行**
-
 Web 版：
 dsh plugin --profile web add git+https://github.com/pixelsoyo/dsh-unity-bridge.git
 
